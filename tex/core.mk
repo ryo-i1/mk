@@ -114,9 +114,16 @@ endef
 # Targets
 ##################################################
 
-.PHONY: all pdf dvi clean distclean open sp help check
+.PHONY: all pdf dvi open clean distclean sp help check
 
-all: pdf
+all: open
+
+open: $(PDF)
+ifeq ($(DO_OPEN),1)
+	$(OPEN) $(PDF)
+else
+	@printf '[INFO] skip open on remote shell\n'
+endif
 
 pdf: $(PDF)
 
@@ -128,21 +135,11 @@ $(DVI): $(MAIN_DOC).tex $(SUB_DOCS:%=%.tex)
 	$(call run_platex)
 	$(call run_platex)
 
-$(BBL): $(AUX)
-	$(BIBTEX) $(BIBTEX_FLAGS) $(JOBNAME)
-
 $(PDF): $(DVI)
 	$(DVIPDFMX) $(DVIPDFMX_FLAGS) -o $(PDF) $(DVI)
 
 sp:
-	$(MAKE) SP=1 pdf
-
-open: $(PDF)
-ifeq ($(DO_OPEN),1)
-	$(OPEN) $(PDF)
-else
-	@printf '[INFO] skip open on remote shell\n'
-endif
+	$(MAKE) SP=1 open
 
 clean:
 	$(RM) *.aux *.bbl *.blg *.dvi *.log *.out *.toc *.lof *.lot *.fls *.fdb_latexmk *.synctex.gz
@@ -164,11 +161,10 @@ check:
 help:
 	@printf '%s\n' \
 		'targets:' \
-		'  make          : build pdf' \
+		'  make          : build pdf and open locally if possible' \
 		'  make pdf      : build pdf' \
 		'  make dvi      : build dvi' \
-		'  make sp       : build with \def\SP{1}' \
-		'  make open     : open pdf locally' \
+		'  make sp       : build with \def\SP{N} and open locally if possible' \
 		'  make clean    : remove auxiliary files' \
 		'  make distclean: remove auxiliary files and generated pdf' \
 		'  make check    : show resolved variables' \
