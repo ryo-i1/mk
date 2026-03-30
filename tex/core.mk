@@ -96,12 +96,18 @@ define run_platex
 $(PLATEX) $(TEX_FLAGS) -jobname=$(JOBNAME) $(if $(filter 1,$(SP)),"\def\SP{1}\input{$(MAIN_DOC).tex}","$(MAIN_DOC).tex")
 endef
 
+define run_bibtex_if_needed
+@if [ -f "$(AUX)" ] && grep -q '\\citation{' "$(AUX)"; then \
+	$(BIBTEX) $(BIBTEX_FLAGS) $(JOBNAME); \
+fi
+endef
+
 
 ##################################################
 # Targets
 ##################################################
 
-.PHONY: all pdf dvi bib clean distclean open sp help check
+.PHONY: all pdf dvi clean distclean open sp help check
 
 all: pdf
 
@@ -111,20 +117,14 @@ dvi: $(DVI)
 
 $(DVI): $(MAIN_DOC).tex $(SUB_DOCS:%=%.tex)
 	$(call run_platex)
+	$(call run_bibtex_if_needed)
+	$(call run_platex)
+	$(call run_platex)
 
 $(BBL): $(AUX)
 	$(BIBTEX) $(BIBTEX_FLAGS) $(JOBNAME)
 
 $(PDF): $(DVI)
-	$(DVIPDFMX) $(DVIPDFMX_FLAGS) -o $(PDF) $(DVI)
-
-bib:
-	$(call run_platex)
-	@if [ -f "$(AUX)" ]; then \
-		$(BIBTEX) $(BIBTEX_FLAGS) $(JOBNAME) || true; \
-	fi
-	$(call run_platex)
-	$(call run_platex)
 	$(DVIPDFMX) $(DVIPDFMX_FLAGS) -o $(PDF) $(DVI)
 
 sp:
@@ -160,7 +160,6 @@ help:
 		'  make          : build pdf' \
 		'  make pdf      : build pdf' \
 		'  make dvi      : build dvi' \
-		'  make bib      : build with bibliography' \
 		'  make sp       : build with \def\SP{1}' \
 		'  make open     : open pdf locally' \
 		'  make clean    : remove auxiliary files' \
