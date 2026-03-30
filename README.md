@@ -1,6 +1,5 @@
 # mk
 
----
 
 ## Install / Uninstall
 
@@ -32,9 +31,10 @@ include ~/local/share/mk/tex/core.mk
 ## Make Commands
 
 ```bash
-make                  # 通常ビルド
-make sp               # SP ビルド
-make open             # PDF を開く
-make open v=1         # version 付き PDF をビルド・開く
-make open sp=1 v=1    # SP + version をビルド・開く
+make                  # PDF をビルドし，可能なら open
+make pdf              # PDF をビルド
+make dvi              # DVI をビルド
+make sp v=1           # SP + version をビルドし，可能なら open
+make clean            # 中間ファイル削除
+make distclean        # 生成物含め削除
 ```
