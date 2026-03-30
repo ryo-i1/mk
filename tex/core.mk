@@ -49,6 +49,13 @@ ifeq ($(strip $(v)),)
 endif
 endif
 
+# require v when SP build
+ifeq ($(SP),1)
+ifeq ($(strip $(v)),)
+	$(error v is required when SP=1)
+endif
+endif
+
 
 ##################################################
 # Output names
@@ -93,7 +100,7 @@ endif
 ##################################################
 
 define run_platex
-$(PLATEX) $(TEX_FLAGS) -jobname=$(JOBNAME) $(if $(filter 1,$(SP)),"\def\SP{1}\input{$(MAIN_DOC).tex}","$(MAIN_DOC).tex")
+$(PLATEX) $(TEX_FLAGS) -jobname=$(JOBNAME) $(if $(filter 1,$(SP)),"\def\SP{$(v)}\input{$(MAIN_DOC).tex}","$(MAIN_DOC).tex")
 endef
 
 define run_bibtex_if_needed
