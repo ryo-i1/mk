@@ -31,16 +31,22 @@ SP := $(or $(SP),$(sp),0)
 # Main document detection
 ##################################################
 
-tex_files := $(filter-out $(SUB_DOCS:%=%.tex),$(wildcard *.tex))
+all_docs := $(basename $(notdir $(wildcard *.tex)))
 
 ifeq ($(strip $(MAIN_DOC)),)
-ifeq ($(words $(tex_files)),1)
-	MAIN_DOC := $(basename $(notdir $(firstword $(tex_files))))
+ifeq ($(words $(all_docs)),1)
+	MAIN_DOC := $(firstword $(all_docs))
+else ifeq ($(words $(all_docs)),0)
+	$(error no .tex file found)
+else
+	$(error MAIN_DOC is not specified and multiple .tex files exist. Please set MAIN_DOC in your project Makefile)
 endif
 endif
 
-ifeq ($(strip $(MAIN_DOC)),)
-	$(error MAIN_DOC is not set. Please set MAIN_DOC in your project Makefile)
+ifeq ($(strip $(SUB_DOCS)),)
+ifneq ($(strip $(MAIN_DOC)),)
+	SUB_DOCS := $(filter-out $(MAIN_DOC),$(all_docs))
+endif
 endif
 
 ifeq ($(REQUIRE_V),1)
