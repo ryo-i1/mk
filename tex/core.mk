@@ -110,7 +110,9 @@ $(PLATEX) $(TEX_FLAGS) -jobname=$(JOBNAME) $(if $(filter 1,$(SP)),"\def\SP{$(v)}
 endef
 
 define run_bibtex_if_needed
-@if [ -f "$(AUX)" ] && grep -q '\\citation{' "$(AUX)"; then \
+@if [ -f "$(AUX)" ] \
+	&& grep -q '\\citation{' "$(AUX)" \
+	&& ls *.bib >/dev/null 2>&1; then \
 	$(BIBTEX) $(BIBTEX_FLAGS) $(JOBNAME); \
 fi
 endef
